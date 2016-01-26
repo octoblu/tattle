@@ -1,0 +1,4 @@
+github.com/codegangsta/cli
+github.com/fatih/color
+github.com/onsi/ginkgo/ginkgo
+github.com/onsi/gomega
