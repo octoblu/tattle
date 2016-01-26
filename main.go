@@ -47,7 +47,19 @@ func run(context *cli.Context) {
 
 	if applicationName == "" || exitCode == "" || serviceName == "" || uri == "" {
 		cli.ShowAppHelp(context)
-		color.Red("  --application, --exit-code, --service, and --uri are all required")
+
+		if applicationName == "" {
+			color.Red("  Missing required flag --application or GOVERNATOR_APPLICATION")
+		}
+		if exitCode == "" {
+			color.Red("  Missing required flag --exit-code or GOVERNATOR_EXIT_CODE")
+		}
+		if serviceName == "" {
+			color.Red("  Missing required flag --service or GOVERNATOR_SERVICE")
+		}
+		if uri == "" {
+			color.Red("  Missing required flag --uri or GOVERNATOR_URI")
+		}
 		os.Exit(1)
 	}
 
