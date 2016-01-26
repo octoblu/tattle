@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_NAME=etcd-lock-port
+APP_NAME=governator
 TMP_DIR=/tmp/$APP_NAME
 IMAGE_NAME=local/$APP_NAME
 

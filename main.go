@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 )
 
 func main() {
@@ -37,6 +38,12 @@ func run(context *cli.Context) {
 	applicationName := context.String("application")
 	serviceName := context.String("service")
 	uri := context.String("uri")
+
+	if applicationName == "" || serviceName == "" || uri == "" {
+		cli.ShowAppHelp(context)
+		color.Red("  --application, --service, and --uri are all required")
+		os.Exit(1)
+	}
 
 	res, err := http.PostForm(uri, url.Values{"applicationName": {applicationName}, "serviceName": {serviceName}})
 	if err != nil {
