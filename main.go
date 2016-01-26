@@ -21,6 +21,11 @@ func main() {
 			Usage:  "Name of the application that failed us",
 		},
 		cli.StringFlag{
+			Name:   "exit-code, e",
+			EnvVar: "GOVERNATOR_EXIT_CODE",
+			Usage:  "Code that the service failed with",
+		},
+		cli.StringFlag{
 			Name:   "service, s",
 			EnvVar: "GOVERNATOR_SERVICE",
 			Usage:  "Name of the service that is specifically at fault",
@@ -36,16 +41,21 @@ func main() {
 
 func run(context *cli.Context) {
 	applicationName := context.String("application")
+	exitCode := context.String("exit-code")
 	serviceName := context.String("service")
 	uri := context.String("uri")
 
-	if applicationName == "" || serviceName == "" || uri == "" {
+	if applicationName == "" || exitCode == "" || serviceName == "" || uri == "" {
 		cli.ShowAppHelp(context)
-		color.Red("  --application, --service, and --uri are all required")
+		color.Red("  --application, --exit-code, --service, and --uri are all required")
 		os.Exit(1)
 	}
 
-	res, err := http.PostForm(uri, url.Values{"applicationName": {applicationName}, "serviceName": {serviceName}})
+	res, err := http.PostForm(uri, url.Values{
+		"applicationName": {applicationName},
+		"exitCode":        {exitCode},
+		"serviceName":     {serviceName},
+	})
 	if err != nil {
 		log.Panicf("Failure to post to uri: %v", err.Error())
 	}
