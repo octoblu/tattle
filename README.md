@@ -1,2 +1,2 @@
-# governator
+# tattle
 Governate deployments

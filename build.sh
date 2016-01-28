@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_NAME=governator
+APP_NAME=tattle
 TMP_DIR=/tmp/$APP_NAME
 IMAGE_NAME=local/$APP_NAME
 

@@ -22,5 +22,5 @@ _testmain.go
 *.exe
 *.test
 *.prof
-governator
-entrypoint/governator
+tattle
+entrypoint/tattle

@@ -12,27 +12,27 @@ import (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "governator"
+	app.Name = "tattle"
 	app.Action = run
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "application, a",
-			EnvVar: "GOVERNATOR_APPLICATION",
+			EnvVar: "TATTLE_APPLICATION",
 			Usage:  "Name of the application that failed us",
 		},
 		cli.StringFlag{
 			Name:   "exit-code, e",
-			EnvVar: "GOVERNATOR_EXIT_CODE",
+			EnvVar: "TATTLE_EXIT_CODE",
 			Usage:  "Code that the service failed with",
 		},
 		cli.StringFlag{
 			Name:   "service, s",
-			EnvVar: "GOVERNATOR_SERVICE",
+			EnvVar: "TATTLE_SERVICE",
 			Usage:  "Name of the service that is specifically at fault",
 		},
 		cli.StringFlag{
 			Name:   "uri, u",
-			EnvVar: "GOVERNATOR_URI",
+			EnvVar: "TATTLE_URI",
 			Usage:  "Uri to POST to with a cancellation notice",
 		},
 	}
@@ -49,16 +49,16 @@ func run(context *cli.Context) {
 		cli.ShowAppHelp(context)
 
 		if applicationName == "" {
-			color.Red("  Missing required flag --application or GOVERNATOR_APPLICATION")
+			color.Red("  Missing required flag --application or TATTLE_APPLICATION")
 		}
 		if exitCode == "" {
-			color.Red("  Missing required flag --exit-code or GOVERNATOR_EXIT_CODE")
+			color.Red("  Missing required flag --exit-code or TATTLE_EXIT_CODE")
 		}
 		if serviceName == "" {
-			color.Red("  Missing required flag --service or GOVERNATOR_SERVICE")
+			color.Red("  Missing required flag --service or TATTLE_SERVICE")
 		}
 		if uri == "" {
-			color.Red("  Missing required flag --uri or GOVERNATOR_URI")
+			color.Red("  Missing required flag --uri or TATTLE_URI")
 		}
 		os.Exit(1)
 	}

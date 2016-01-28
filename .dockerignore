@@ -1,5 +1,5 @@
 .git
-governator
-entrypoint/governator
+tattle
+entrypoint/tattle
 build.sh
 README.md
