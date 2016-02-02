@@ -49,7 +49,8 @@ func New(indexPrefix, typeName, JobType, WorkerName string, Code, ElapsedTime in
 	requestMetadata := RequestMetadata{JobType, WorkerName}
 	request := Request{Metadata: requestMetadata}
 
-	responseMetadata := ResponseMetadata{Code: Code, Success: false}
+	Success := (Code < 500)
+	responseMetadata := ResponseMetadata{Code: Code, Success: Success}
 	response := Response{Metadata: responseMetadata}
 
 	body := Body{Request: request, Response: response, ElapsedTime: ElapsedTime}

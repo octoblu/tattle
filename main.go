@@ -134,7 +134,7 @@ func logJob(redisURI, redisQueue, applicationName, serviceName string, exitCode 
 		return err
 	}
 
-	logEntry := logentry.New("metric-tattle", "tattle", applicationName, serviceName, exitCode, 0)
+	logEntry := logentry.New("metric:tattle", "tattle", applicationName, serviceName, exitCode, 0)
 	logEntryBytes, err := json.Marshal(logEntry)
 	if err != nil {
 		return err
