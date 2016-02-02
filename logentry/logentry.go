@@ -29,8 +29,9 @@ type Response struct {
 
 // Body represents the body...
 type Body struct {
-	Request  Request  `json:"request"`
-	Response Response `json:"response"`
+	ElapsedTime int      `json:"elapsedTime"`
+	Request     Request  `json:"request"`
+	Response    Response `json:"response"`
 }
 
 // LogEntry represents a log entry...
@@ -41,7 +42,7 @@ type LogEntry struct {
 }
 
 // New constructs a new LogEntry
-func New(JobType, WorkerName string, Code int) *LogEntry {
+func New(JobType, WorkerName string, Code, ElapsedTime int) *LogEntry {
 	now := time.Now()
 	index := fmt.Sprintf("metric-tattle-%04d-%02d-%02d", now.Year(), now.Month(), now.Day())
 
@@ -51,6 +52,6 @@ func New(JobType, WorkerName string, Code int) *LogEntry {
 	responseMetadata := ResponseMetadata{Code: Code, Success: false}
 	response := Response{Metadata: responseMetadata}
 
-	body := Body{Request: request, Response: response}
+	body := Body{Request: request, Response: response, ElapsedTime: ElapsedTime}
 	return &LogEntry{Index: index, Type: "tattle", Body: body}
 }
