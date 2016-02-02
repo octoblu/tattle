@@ -42,9 +42,9 @@ type LogEntry struct {
 }
 
 // New constructs a new LogEntry
-func New(JobType, WorkerName string, Code, ElapsedTime int) *LogEntry {
+func New(indexPrefix, typeName, JobType, WorkerName string, Code, ElapsedTime int) *LogEntry {
 	now := time.Now()
-	index := fmt.Sprintf("metric-tattle-%04d-%02d-%02d", now.Year(), now.Month(), now.Day())
+	index := fmt.Sprintf("%v-%04d-%02d-%02d", indexPrefix, now.Year(), now.Month(), now.Day())
 
 	requestMetadata := RequestMetadata{JobType, WorkerName}
 	request := Request{Metadata: requestMetadata}
@@ -53,5 +53,5 @@ func New(JobType, WorkerName string, Code, ElapsedTime int) *LogEntry {
 	response := Response{Metadata: responseMetadata}
 
 	body := Body{Request: request, Response: response, ElapsedTime: ElapsedTime}
-	return &LogEntry{Index: index, Type: "tattle", Body: body}
+	return &LogEntry{Index: index, Type: typeName, Body: body}
 }
