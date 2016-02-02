@@ -1,4 +1,4 @@
-package main
+package logentry
 
 import (
 	"fmt"
@@ -40,8 +40,8 @@ type LogEntry struct {
 	Body  Body   `json:"body"`
 }
 
-// NewLogEntry constructs a new LogEntry
-func NewLogEntry(JobType, WorkerName string, Code int) *LogEntry {
+// New constructs a new LogEntry
+func New(JobType, WorkerName string, Code int) *LogEntry {
 	now := time.Now()
 	index := fmt.Sprintf("metric-tattle-%04d-%02d-%02d", now.Year(), now.Month(), now.Day())
 

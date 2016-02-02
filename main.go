@@ -11,6 +11,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/garyburd/redigo/redis"
+	"github.com/octoblu/tattle/logentry"
 )
 
 func main() {
@@ -133,7 +134,7 @@ func logJob(redisURI, redisQueue, applicationName, serviceName string, exitCode 
 		return err
 	}
 
-	logEntry := NewLogEntry(applicationName, serviceName, exitCode)
+	logEntry := logentry.New(applicationName, serviceName, exitCode)
 	logEntryBytes, err := json.Marshal(logEntry)
 	if err != nil {
 		return err
