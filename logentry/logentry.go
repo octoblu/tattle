@@ -30,6 +30,7 @@ type Response struct {
 // Body represents the body...
 type Body struct {
 	ElapsedTime int      `json:"elapsedTime"`
+	Date        int      `json:"date"`
 	Request     Request  `json:"request"`
 	Response    Response `json:"response"`
 }
@@ -53,6 +54,7 @@ func New(indexPrefix, typeName, JobType, WorkerName string, Code, ElapsedTime in
 	responseMetadata := ResponseMetadata{Code: Code, Success: Success}
 	response := Response{Metadata: responseMetadata}
 
-	body := Body{Request: request, Response: response, ElapsedTime: ElapsedTime}
+	Date := int((now.UnixNano() / 1000000)) - ElapsedTime
+	body := Body{Request: request, Response: response, ElapsedTime: ElapsedTime, Date: Date}
 	return &LogEntry{Index: index, Type: typeName, Body: body}
 }
