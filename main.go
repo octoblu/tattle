@@ -11,21 +11,27 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/garyburd/redigo/redis"
-	"github.com/octoblu/tattle/logentry"
+	"github.com/octoblu/go-logentry/logentry"
 )
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "tattle"
 	app.Action = run
+	app.Version = VERSION
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:   "application, a",
-			EnvVar: "TATTLE_APPLICATION",
-			Usage:  "Name of the application that failed us",
+			Name:   "docker-url, d",
+			EnvVar: "TATTLE_DOCKER_URL",
+			Usage:  "Docker URL of the service",
+		},
+		cli.StringFlag{
+			Name:   "etcd-dir, e",
+			EnvVar: "TATTLE_ETCD_DIR",
+			Usage:  "Etcd dir of the service",
 		},
 		cli.IntFlag{
-			Name:   "exit-code, e",
+			Name:   "exit-code, x",
 			EnvVar: "TATTLE_EXIT_CODE",
 			Usage:  "Code that the service failed with",
 		},
@@ -40,11 +46,6 @@ func main() {
 			Usage:  "Redis queue to place the tattle in",
 		},
 		cli.StringFlag{
-			Name:   "service, s",
-			EnvVar: "TATTLE_SERVICE",
-			Usage:  "Name of the service that is specifically at fault",
-		},
-		cli.StringFlag{
 			Name:   "uri, u",
 			EnvVar: "TATTLE_URI",
 			Usage:  "Uri to POST to with a cancellation notice",
@@ -54,24 +55,24 @@ func main() {
 }
 
 func run(context *cli.Context) {
-	applicationName := context.String("application")
+	dockerURL := context.String("docker-url")
+	etcdDir := context.String("etcd-dir")
 	exitCode := context.Int("exit-code")
-	serviceName := context.String("service")
 	uri := context.String("uri")
 	redisURI := context.String("redis-uri")
 	redisQueue := context.String("redis-queue")
 
-	if applicationName == "" || exitCode == 0 || serviceName == "" || uri == "" || redisURI == "" || redisQueue == "" {
+	if dockerURL == "" || etcdDir == "" || exitCode == 0 || uri == "" || redisURI == "" || redisQueue == "" {
 		cli.ShowAppHelp(context)
 
-		if applicationName == "" {
-			color.Red("  Missing required flag --application or TATTLE_APPLICATION")
+		if dockerURL == "" {
+			color.Red("  Missing required flag --docker-url or TATTLE_DOCKER_URL")
+		}
+		if etcdDir == "" {
+			color.Red("  Missing required flag --etcd-dir or TATTLE_ETCD_DIR")
 		}
 		if exitCode == 0 {
 			color.Red("  Missing required flag --exit-code or TATTLE_EXIT_CODE")
-		}
-		if serviceName == "" {
-			color.Red("  Missing required flag --service or TATTLE_SERVICE")
 		}
 		if uri == "" {
 			color.Red("  Missing required flag --uri or TATTLE_URI")
@@ -89,10 +90,10 @@ func run(context *cli.Context) {
 	postErrorChannel := make(chan error)
 
 	go func() {
-		logErrorChannel <- logJob(redisURI, redisQueue, applicationName, serviceName, exitCode)
+		logErrorChannel <- logJob(redisURI, redisQueue, dockerURL, etcdDir, exitCode)
 	}()
 	go func() {
-		postErrorChannel <- postToGovernator(uri, applicationName, serviceName, exitCode)
+		postErrorChannel <- postToGovernator(uri, dockerURL, etcdDir, exitCode)
 	}()
 
 	logError := <-logErrorChannel
@@ -111,12 +112,12 @@ func run(context *cli.Context) {
 	}
 }
 
-func postToGovernator(uri, applicationName, serviceName string, exitCode int) error {
+func postToGovernator(uri, dockerURL, etcdDir string, exitCode int) error {
 	exitCodeStr := fmt.Sprintf("%v", exitCode)
 	res, err := http.PostForm(uri, url.Values{
-		"applicationName": {applicationName},
-		"exitCode":        {exitCodeStr},
-		"serviceName":     {serviceName},
+		"dockerUrl": {dockerURL},
+		"exitCode":  {exitCodeStr},
+		"etcdDir":   {etcdDir},
 	})
 	if err != nil {
 		return err
@@ -128,18 +129,18 @@ func postToGovernator(uri, applicationName, serviceName string, exitCode int) er
 	return nil
 }
 
-func logJob(redisURI, redisQueue, applicationName, serviceName string, exitCode int) error {
+func logJob(redisURI, redisQueue, dockerURL, etcdDir string, exitCode int) error {
 	redisConn, err := redis.DialURL(redisURI)
 	if err != nil {
 		return err
 	}
 
-	logEntry := logentry.New("metric:tattle", "tattle", applicationName, serviceName, exitCode, 0)
+	logEntry := logentry.New("metric:tattle", "tattle", dockerURL, etcdDir, exitCode, 0)
 	logEntryBytes, err := json.Marshal(logEntry)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%v", string(logEntryBytes))
+
 	_, err = redisConn.Do("LPUSH", redisQueue, logEntryBytes)
 	return err
 }

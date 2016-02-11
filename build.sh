@@ -1,11 +1,11 @@
 #!/bin/bash
 
 APP_NAME=tattle
-TMP_DIR=/tmp/$APP_NAME
+TMP_DIR=$PWD/tmp
 IMAGE_NAME=local/$APP_NAME
 
 build() {
-  docker build --tag $IMAGE_NAME .
+  docker build --tag $IMAGE_NAME:built .
 }
 
 copy() {
@@ -19,13 +19,13 @@ init() {
 }
 
 package() {
-  docker build --tag $IMAGE_NAME:entrypoint entrypoint
+  docker build --tag $IMAGE_NAME:latest entrypoint
 }
 
 run() {
   docker run --rm \
     --volume $TMP_DIR:/export/ \
-    $IMAGE_NAME \
+    $IMAGE_NAME:built \
       cp $APP_NAME /export
 }
 
