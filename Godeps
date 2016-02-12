@@ -1,6 +1,6 @@
 github.com/codegangsta/cli
 github.com/fatih/color
 github.com/garyburd/redigo/redis
-github.com/octoblu/go-logentry/logentry v1.0.0
+github.com/octoblu/go-logentry/logentry v1.1.0
 github.com/onsi/ginkgo/ginkgo
 github.com/onsi/gomega

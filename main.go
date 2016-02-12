@@ -135,7 +135,7 @@ func logJob(redisURI, redisQueue, dockerURL, etcdDir string, exitCode int) error
 		return err
 	}
 
-	logEntry := logentry.New("metric:tattle", "tattle", dockerURL, etcdDir, exitCode, 0)
+	logEntry := logentry.New("metric:tattle", "tattle", dockerURL, etcdDir, exitCode, 0, false)
 	logEntryBytes, err := json.Marshal(logEntry)
 	if err != nil {
 		return err
