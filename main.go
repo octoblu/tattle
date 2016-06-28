@@ -50,6 +50,11 @@ func main() {
 			EnvVar: "TATTLE_URI",
 			Usage:  "Uri to POST to with a cancellation notice",
 		},
+		cli.StringFlag{
+			Name:   "worker-name, w",
+			EnvVar: "TATTLE_WORKER_NAME",
+			Usage:  "Name of the worker to tattle on",
+		},
 	}
 	app.Run(os.Args)
 }
@@ -58,11 +63,12 @@ func run(context *cli.Context) {
 	dockerURL := context.String("docker-url")
 	etcdDir := context.String("etcd-dir")
 	exitCode := context.Int("exit-code")
-	uri := context.String("uri")
 	redisURI := context.String("redis-uri")
 	redisQueue := context.String("redis-queue")
+	uri := context.String("uri")
+	workerName := context.String("worker-name")
 
-	if dockerURL == "" || etcdDir == "" || exitCode == 0 || uri == "" || redisURI == "" || redisQueue == "" {
+	if dockerURL == "" || etcdDir == "" || exitCode == 0 || redisURI == "" || redisQueue == "" || uri == "" || workerName == "" {
 		cli.ShowAppHelp(context)
 
 		if dockerURL == "" {
@@ -74,14 +80,17 @@ func run(context *cli.Context) {
 		if exitCode == 0 {
 			color.Red("  Missing required flag --exit-code or TATTLE_EXIT_CODE")
 		}
-		if uri == "" {
-			color.Red("  Missing required flag --uri or TATTLE_URI")
-		}
 		if redisURI == "" {
 			color.Red("  Missing required flag --redis-uri or TATTLE_REDIS_URI")
 		}
 		if redisQueue == "" {
 			color.Red("  Missing required flag --redis-queue or TATTLE_REDIS_QUEUE")
+		}
+		if uri == "" {
+			color.Red("  Missing required flag --uri or TATTLE_URI")
+		}
+		if workerName == "" {
+			color.Red("  Missing required flag --worker-name or TATTLE_WORKER_NAME")
 		}
 		os.Exit(1)
 	}
@@ -90,7 +99,7 @@ func run(context *cli.Context) {
 	postErrorChannel := make(chan error)
 
 	go func() {
-		logErrorChannel <- logJob(redisURI, redisQueue, dockerURL, etcdDir, exitCode)
+		logErrorChannel <- logJob(redisURI, redisQueue, dockerURL, workerName, exitCode)
 	}()
 	go func() {
 		postErrorChannel <- postToGovernator(uri, dockerURL, etcdDir, exitCode)
@@ -129,13 +138,13 @@ func postToGovernator(uri, dockerURL, etcdDir string, exitCode int) error {
 	return nil
 }
 
-func logJob(redisURI, redisQueue, dockerURL, etcdDir string, exitCode int) error {
+func logJob(redisURI, redisQueue, dockerURL, workerName string, exitCode int) error {
 	redisConn, err := redis.DialURL(redisURI)
 	if err != nil {
 		return err
 	}
 
-	logEntry := logentry.New("metric:tattle", "tattle", dockerURL, etcdDir, exitCode, 0, false)
+	logEntry := logentry.New("metric:tattle", "tattle", dockerURL, workerName, exitCode, 0, false)
 	logEntryBytes, err := json.Marshal(logEntry)
 	if err != nil {
 		return err
