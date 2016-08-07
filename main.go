@@ -59,7 +59,7 @@ func main() {
 	app.Run(os.Args)
 }
 
-func run(context *cli.Context) {
+func run(context *cli.Context) error {
 	dockerURL := context.String("docker-url")
 	etcdDir := context.String("etcd-dir")
 	exitCode := context.Int("exit-code")
@@ -119,6 +119,7 @@ func run(context *cli.Context) {
 
 		os.Exit(1)
 	}
+	return nil
 }
 
 func postToGovernator(uri, dockerURL, etcdDir string, exitCode int) error {
